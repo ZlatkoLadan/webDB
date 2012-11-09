@@ -1,0 +1,35 @@
+@import url(reset.css);
+/* CODE BEGINS HERE*/
+#wrapper {
+	width: 960px;
+	margin: 0 auto;
+}
+aside {
+	width: 100px;
+	position: fixed;
+	right: 0;
+	top: 0;
+	background-color: #ddd;
+}
+input, textarea { display: block;}
+#name { width: 800px;}
+textarea {
+	width: 800px;
+	height: 200px;
+}
+canvas {
+	border: 1px solid #000;
+	cursor: crosshair;
+}
+html {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+#selected { background-color: #f00;}
+aside { cursor: default;}
+aside>div:hover { background-color: #00f;}
+aside>div:active { background-color: #00a;}
