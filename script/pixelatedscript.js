@@ -1,12 +1,10 @@
-var WebFontConfig = {
-	google: { families: [ 'Press+Start+2P::latin,latin-ext,cyrillic' ] }
-};
+var WebFontConfig = { google: { families: [ 'Press+Start+2P::latin,latin-ext,cyrillic' ]}};
 var ZLOYT = {
 	title: "Pixelated",
 	fontSize: 32,
 	speed: 100,
 	width: 800,
-	height: 600,//576
+	height: 600,
 	color: "#fff",
 	backgroundColor: "#000",
 	maxWidthLetters: 0,
@@ -34,14 +32,6 @@ var ZLOYT = {
 		ZLOYT.progressId = window.setTimeout(ZLOYT.getProgress, ZLOYT.sleepCheck);
 	},
 
-	message: function () {
-		"use strict";
-		if (window.webkitNotifications.checkPermission() === 0) {
-			//window.webkitNotifications.createNotification("http://1.bp.blogspot.com/-TC6Ddvp7QMY/TxQQuzQ4oKI/AAAAAAAAARM/GFb2OfEYfCs/s1600/deer-wallpapers-447%255B1%255D.jpg", "ahoj", "i say indeed, yes!").show();
-			window.webkitNotifications.createNotification("imgs/azbuk-message.png", "Loaded new text...", ZLOYT.azbuka).show();
-		}
-	},
-
 	onReadyState: function () {
 		"use strict";
 		var result = null;
@@ -58,9 +48,6 @@ var ZLOYT = {
 				ZLOYT.row = 0;
 				ZLOYT.column = 0;
 				ZLOYT.linebreak = result.linebreak;
-				if (typeof (window.webkitNotifications) !== 'undefined') {
-					ZLOYT.message();
-				}
 			}
 		}
 	},
@@ -69,7 +56,6 @@ var ZLOYT = {
 		"use strict";
 		if (ZLOYT.current >= ZLOYT.azbuka.length) {
 			if (ZLOYT.erase) {
-				//cx.fillStyle = "#" + Math.floor(Math.random() * 999);
 				ZLOYT.cx.fillRect(0, 0, ZLOYT.width, ZLOYT.height);
 				ZLOYT.cx.fillStyle = ZLOYT.color;
 				ZLOYT.erase = false;
@@ -121,17 +107,6 @@ var ZLOYT = {
 		ZLOYT.canvas.height = String(ZLOYT.height);
 		ZLOYT.cx = ZLOYT.canvas.getContext("2d");
 		ZLOYT.cx.font = ZLOYT.fontSize + "px 'Press Start 2P'";
-		if (typeof (window.webkitNotifications) !== 'undefined' && window.webkitNotifications.checkPermission() === 1) {
-			reqButton = document.createElement("button");
-			reqButton.id = "reqbutton";
-			reqButton.appendChild(document.createTextNode("Request messages"));
-			reqButton.onclick = function () {
-				window.webkitNotifications.requestPermission(function () {
-					document.body.removeChild(reqButton);
-				});
-			};
-			document.body.appendChild(reqButton);
-		}
 		xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = ZLOYT.onReadyState;
 		xhrFetch = function () {
