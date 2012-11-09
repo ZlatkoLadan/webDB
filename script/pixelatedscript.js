@@ -110,7 +110,7 @@ var ZLOYT = {
 		xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = ZLOYT.onReadyState;
 		xhrFetch = function () {
-			xhr.open("GET", "php/message.php", true);
+			xhr.open("GET", "php/texts.php", true);
 			xhr.setRequestHeader('Content-Type', 'application/json');
 			xhr.send(null);
 			ZLOYT.progress = 0;
