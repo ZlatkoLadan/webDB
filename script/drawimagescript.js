@@ -37,7 +37,7 @@ ZEDAPP.drawImage = {
 		img.onload = function () {
 			ZEDAPP.drawImage.nameInput.value = name;
 			ZEDAPP.drawImage.commentInput.value = comment;
-			ZEDAPP.drawImage.ctx.drawImageFromRect(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+			ZEDAPP.drawImage.ctx.drawImage(img, 0, 0, img.width, img.height);
 		};
 	},
 
