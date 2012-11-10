@@ -1,11 +1,11 @@
-/*@import url(http://fonts.googleapis.com/css?family=Press+Start+2P&subset=latin,latin-ext,cyrillic);*/
+@import url(reset.css);
+html {overflow: hidden;}
 noscript {
 	font: 1.2em monospace;
 	font-weight: bold;
 }
 body {
 	background-color: #000;
-	margin: 0;
 	color: #fff;
 	font-family: 'Press Start 2P', cursive;
 	text-transform: uppercase;
@@ -45,12 +45,8 @@ p#status {
 	right: 0;
 	position: absolute;
 }
-p#status:before {
-	content: "status: ";
-}
-button {
-	font: 16px 'Press Start 2P';
-}
+p#status:before { content: "status: ";}
+button { font: 16px 'Press Start 2P';}
 button#reqbutton {
 	position: fixed;
 	right: 0;

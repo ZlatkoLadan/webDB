@@ -3,8 +3,8 @@ var ZLOYT = {
 	title: "Pixelated",
 	fontSize: 32,
 	speed: 100,
-	width: 800,
-	height: 600,
+	width: 320,
+	height: 480,
 	color: "#fff",
 	backgroundColor: "#000",
 	maxWidthLetters: 0,
@@ -24,6 +24,7 @@ var ZLOYT = {
 	linebreak: false,
 	azbuka: "АБВГДЂЕЖЗИЈКЛЉМНЊОПРСТЋУФХЦЧЏШ ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ",
 	loopId: 0,
+	smallScreen: false,
 
 	getProgress: function () {
 		"use strict";
@@ -63,8 +64,8 @@ var ZLOYT = {
 				ZLOYT.cx.fillStyle = ZLOYT.backgroundColor;
 				ZLOYT.erase = true;
 			}
-			ZLOYT.current = 0;
 
+			ZLOYT.current = 0;
 			ZLOYT.line = 0;
 			ZLOYT.row = 0;
 		}
@@ -102,6 +103,14 @@ var ZLOYT = {
 		wrapper.appendChild(document.createElement("p"));
 		wrapper.lastChild.id = "status";
 		wrapper.lastChild.appendChild(ZLOYT.progressNode);
+		document.body.appendChild(wrapper);
+
+		if (ZLOYT.width < document.body.clientWidth || ZLOYT.height < document.body.clientHeight ) {
+				ZLOYT.width = document.body.clientWidth - 1;
+				ZLOYT.height = document.body.clientHeight - wrapper.clientHeight + 55;
+				ZLOYT.smallScreen = true;
+		}
+
 		ZLOYT.canvas = document.createElement("canvas");
 		ZLOYT.canvas.width = String(ZLOYT.width);
 		ZLOYT.canvas.height = String(ZLOYT.height);
@@ -120,15 +129,18 @@ var ZLOYT = {
 		};
 		xhrFetch();
 		wrapper.appendChild(ZLOYT.canvas);
-		document.body.appendChild(wrapper);
+
 		ZLOYT.cx.fillStyle = ZLOYT.backgroundColor;
 		ZLOYT.cx.fillRect(0, 0, ZLOYT.width, ZLOYT.height);
 		ZLOYT.cx.fillStyle = ZLOYT.color;
 		ZLOYT.maxWidthLetters = ZLOYT.width / ZLOYT.fontSize;
-		wrapper.style.marginLeft = -wrapper.clientWidth / 2 + "px";
-		wrapper.style.marginTop = -wrapper.clientHeight / 2 + "px";
+		if (!ZLOYT.smallScreen) {
+			wrapper.style.marginLeft = -wrapper.clientWidth / 2 + "px";
+			wrapper.style.marginTop = -wrapper.clientHeight / 2 + "px";
+		}
 		ZLOYT.maxcolumns = Math.floor(ZLOYT.width / ZLOYT.fontSize);
 		ZLOYT.maxrows = Math.floor(ZLOYT.height / ZLOYT.fontSize);
+		window.scrollTo(0, 1);
 		ZLOYT.loop();
 	}
 };

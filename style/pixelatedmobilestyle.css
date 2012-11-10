@@ -1,0 +1,17 @@
+html, body { height: 100%;}
+div#wrapper {
+	margin: 0;
+	position: static;
+}
+canvas {
+	float: none;
+	border-left: none;
+	border-right: none;
+	border-bottom: none;
+	padding: 0;
+}
+h1 { font-size: 15pt;}
+p#status {
+	float: none;
+	position: static;
+}
