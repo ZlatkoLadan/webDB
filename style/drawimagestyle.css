@@ -1,8 +1,30 @@
-@import url(reset.css);
+@import url("reset.css");
 /* CODE BEGINS HERE*/
+body {
+	font-family: Arial;
+	text-align: center;
+	background: #fff url("bg.png") repeat left top;
+	cursor: default;
+}
+h1 {
+	font-size: 24pt;
+	background-image: -webkit-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -webkit-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -webkit-linear-gradient(left, transparent 25%, #fff 50%, transparent 75%);
+	background-image: -moz-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -moz-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -webkit-linear-gradient(left, transparent 25%, #fff 50%, transparent 75%);
+	background-image: -ms-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -ms-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -webkit-linear-gradient(left, transparent 25%, #fff 50%, transparent 75%);
+	background-image: -o-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -o-linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -webkit-linear-gradient(left, transparent 25%, #fff 50%, transparent 75%);
+	background-image: linear-gradient(left, transparent 25%, #000 50%, transparent 75%), linear-gradient(left, transparent 25%, #000 50%, transparent 75%), -webkit-linear-gradient(left, transparent 25%, #fff 50%, transparent 75%);
+	background-size: 100% 1pt, 100% 1pt, 100%;
+	background-position: 0 bottom, 0 1pt, 0 1pt;
+	background-repeat: no-repeat;
+	margin-bottom: 15pt;
+}
 #wrapper {
 	width: 960px;
 	margin: 0 auto;
+	background-color: #aaa;
+	border-radius: 0 0 15pt 15pt;
+	padding-top: 5pt;
+	padding-bottom: 5pt;
 }
 aside {
 	width: 100px;
@@ -12,15 +34,20 @@ aside {
 	background-color: #ddd;
 }
 input, textarea { display: block;}
-#name { width: 800px;}
+#name, textarea { width: 800px;}
+input[type="file"] { background-color: #fff;}
 textarea {
-	width: 800px;
 	height: 200px;
 }
-canvas {
+input[type="file"], #name, canvas, textarea, input[type="button"] {
 	border: 1px solid #000;
-	cursor: crosshair;
+	margin-bottom: 2pt;
 }
+canvas {
+	cursor: crosshair;
+	display: block;
+}
+input, canvas, textarea { margin-left: 79px;}
 html {
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
