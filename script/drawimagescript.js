@@ -197,7 +197,6 @@ ZEDAPP.drawImage = {
 	 */
 	insert: function (name, comment, data, onSuccess) {
 		"use strict";
-		alert("df");
 		if (onSuccess === undefined) {
 			onSuccess = ZEDAPP.drawImage.successCallback;
 		}
@@ -275,12 +274,45 @@ ZEDAPP.drawImage = {
 		console.log("ok");
 	},
 
+	contextMenu: {
+		contextMenu: null,
+
+		initMenues: function () {
+			"use strict";
+			var contextMenu = null, ULlist = null, listItem = null, anchor = null, textNode = null;
+
+			contextMenu = document.createElement("div");
+			ULlist = document.createElement("ul");
+
+			contextMenu.id = "contextmenu";
+
+			listItem = document.createElement("li");
+			anchor = document.createElement("a");
+			textNode = document.createTextNode("item");
+
+			anchor.appendChild(textNode);
+			listItem.appendChild(anchor);
+			ULlist.appendChild(listItem);
+			contextMenu.appendChild(ULlist);
+			document.body.appendChild(contextMenu);
+			ZEDAPP.drawImage.contextMenu.contextMenu = contextMenu;
+		},
+
+		thumbnailMenu: function () {
+			"use strict";
+		}
+	},
+
 	/**
 	 * The starter function.
 	 * @author Zlatko Ladan
 	 */
 	init: function () {
 		"use strict";
+		var fileChoosingElement = document.getElementsByTagName("input")[0];
+
+		ZEDAPP.drawImage.contextMenu.initMenues(); //TODO EDIT
+
 		ZEDAPP.drawImage.db = window.openDatabase("files", "1.0", "for files", 104857600); // 100 MB
 		ZEDAPP.drawImage.aside = document.getElementsByTagName("aside")[0];
 		ZEDAPP.drawImage.aside.onclick = function (e) {
@@ -321,14 +353,27 @@ ZEDAPP.drawImage = {
 				};
 			}
 		};
-		ZEDAPP.drawImage.imageDisplay.oncontextmenu = function () {
-			alert("hej");
+		document.body.onclick = function () {
+			//TODO: FIX functionality
+			var elem = document.querySelector("#contextmenu");
+			elem.style.display = "none";
+		}
+		document.body.oncontextmenu = function (e) {
+			var elem = document.querySelector("#contextmenu");
+			elem.style.display = "";
+			elem.style.left = e.pageX + "px";
+			elem.style.top = e.pageY + "px";
 			return false;
 			//TODO: FIX functionality
 		};
 		ZEDAPP.drawImage.create();
 		ZEDAPP.drawImage.select();
-		document.getElementsByTagName("input")[0].onchange = function () {
+		ZEDAPP.drawImage.nameInput.oncontextmenu = function (e) {
+			e.stopPropagation();
+			return true;
+		};
+		ZEDAPP.drawImage.commentInput.oncontextmenu = ZEDAPP.drawImage.nameInput.oncontextmenu;
+		fileChoosingElement.onchange = function () {
 			ZEDAPP.drawImage.selectImage(this.files);
 		};
 	}
