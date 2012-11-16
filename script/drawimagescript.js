@@ -1,9 +1,44 @@
 var ZEDAPP = {};
+ZEDAPP.StringUtil = {
+	numberOfMatches: function (searchString, textString, ignoreCase) {
+		"use strict";
+		var matches = 0, regEx = null, setting = "g";
+		if (ignoreCase === true) {
+			setting = setting + "i";
+		}
+		regEx = new RegExp(searchString, setting);
+		matches = textString.match(regEx);
+		return matches === null ? 0 : matches.length;
+	},
+
+	sprintf: function (format) {
+		"use strict";
+		var i = 0, len = 0, result = "";
+		if (arguments.length > 0) {
+			if (arguments.length - 1 !== ZEDAPP.StringUtil.numberOfMatches("^%s|[^%]%s", format, true)) {
+				throw new EvalError("Too many or too few replacements!");
+			}
+			result = format;
+			for (i = 1, len = arguments.length; i < len; i++) {
+				result = result.replace(/^%s|([^%])%s/i, "$1" + arguments[i]);
+			}
+			return result;
+		}
+		throw new Error("Empty call to function!");
+	}
+};
+
 /**
  * Drawing object.
  * @author Zlatko Ladan
  */
 ZEDAPP.drawImage = {
+	MESSAGE_REMOVE_IMAGE: 'Do you want to remove "%s"?',
+	DB_DATABASE: "files",
+	DB_VERSION: "1.0",
+	DB_DESCRIPTION: "for files",
+	DB_SIZE: 104857600,
+	 
 	db: null,
 	aside: null,
 	imageDisplay: null,
@@ -148,7 +183,7 @@ ZEDAPP.drawImage = {
 				ZEDAPP.drawImage.openImg(ZEDAPP.drawImage.list[id].name, ZEDAPP.drawImage.list[id].comment, ZEDAPP.drawImage.list[id].data);
 				ZEDAPP.drawImage.currentId = id;
 			};
-			
+
 			tmpContainer.oncontextmenu = function (e) {
 				var menu = ZEDAPP.drawImage.contextMenu.thumbnail;
 				menu.menu.style.display = "";
@@ -156,7 +191,7 @@ ZEDAPP.drawImage = {
 				menu.menu.style.top = e.pageY + "px";
 				menu.id = id;
 				return false;
-			}
+			};
 			ZEDAPP.drawImage.list[id].nameElement = nameElement;
 			ZEDAPP.drawImage.list[id].imageElement = imageElement;
 			ZEDAPP.drawImage.list[id].commentElement = commentElement;
@@ -311,7 +346,7 @@ ZEDAPP.drawImage = {
 	contextMenu: {
 		thumbnail: {
 			menu: null,
-			id: 0,
+			id: 0
 		},
 
 		initMenues: function () {
@@ -331,13 +366,13 @@ ZEDAPP.drawImage = {
 
 			listItem = document.createElement("li");
 			anchor = document.createElement("a");
-			textNode = document.createTextNode("delete");
+			textNode = document.createTextNode("Remove");
 
 			anchor.href = "#";
 			anchor.onclick = function () {
 				var id = 0;
 				id = ZEDAPP.drawImage.contextMenu.thumbnail.id;
-				if (confirm("do you want to remove \"" + ZEDAPP.drawImage.list[id].name + "\"?")) {
+				if (confirm(ZEDAPP.StringUtil.sprintf(ZEDAPP.drawImage.MESSAGE_REMOVE_IMAGE, ZEDAPP.drawImage.list[id].name))) {
 					ZEDAPP.drawImage.remove(id);
 				}
 				return false;
@@ -362,7 +397,7 @@ ZEDAPP.drawImage = {
 
 		ZEDAPP.drawImage.contextMenu.initMenues(); //TODO EDIT
 
-		ZEDAPP.drawImage.db = window.openDatabase("files", "1.0", "for files", 104857600); // 100 MB
+		ZEDAPP.drawImage.db = window.openDatabase(ZEDAPP.drawImage.DB_DATABASE, ZEDAPP.drawImage.DB_VERSION, ZEDAPP.drawImage.DB_DESCRIPTION, ZEDAPP.drawImage.DB_SIZE);
 		ZEDAPP.drawImage.aside = document.getElementsByTagName("aside")[0];
 		ZEDAPP.drawImage.aside.onclick = function (e) {
 			if (e.target !== e.currentTarget) {
@@ -405,7 +440,7 @@ ZEDAPP.drawImage = {
 		document.body.onclick = function () {
 			//TODO: FIX functionality
 			ZEDAPP.drawImage.contextMenu.thumbnail.menu.style.display = "none";
-		}
+		};
 		document.body.oncontextmenu = function (e) {
 			return false;
 		};
