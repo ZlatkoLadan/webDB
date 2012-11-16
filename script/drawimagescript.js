@@ -38,15 +38,20 @@ ZEDAPP.drawImage = {
 	DB_VERSION: "1.0",
 	DB_DESCRIPTION: "for files",
 	DB_SIZE: 104857600,
-	 
+
+	wrapper: null,
 	db: null,
 	aside: null,
 	imageDisplay: null,
 	ctx: null,
 	nameInput: null,
 	commentInput: null,
+	saveButton: null,
+	fileChoosingElement: null,
 	list: {},
 	currentId: 0,
+	drawSize: 20,
+	color: "#000",
 
 	/**
 	 * Clears the canvas
@@ -325,10 +330,27 @@ ZEDAPP.drawImage = {
 	 */
 	drawCircle: function (x, y, width) {
 		"use strict";
-		ZEDAPP.drawImage.ctx.fillStyle = "#000";
-		ZEDAPP.drawImage.ctx.beginPath();
-		ZEDAPP.drawImage.ctx.arc(x, y, width / 2, 0, 2 * Math.PI, false);
-		ZEDAPP.drawImage.ctx.fill();
+		var ctx = null;
+		ctx = ZEDAPP.drawImage.ctx;
+
+		ctx.fillStyle = ZEDAPP.drawImage.color;
+		ctx.beginPath();
+		ctx.arc(x, y, width / 2, 0, 2 * Math.PI, false);
+		ctx.fill();
+	},
+
+	drawLine: function (sx, sy, ex, ey, width) {
+		"use strict";
+		var ctx = null;
+		ctx = ZEDAPP.drawImage.ctx;
+
+		ctx.fillStyle = ZEDAPP.drawImage.color;
+		ctx.beginPath();
+		ctx.moveTo(sx, sy);
+		ctx.lineTo(ex, ey);
+		ctx.lineWidth = width;
+		ctx.closePath();
+		ctx.stroke();
 	},
 
 	/**
@@ -387,18 +409,77 @@ ZEDAPP.drawImage = {
 		}
 	},
 
+	createElements: function () {
+		"use strict";
+		var fileChoosingElement = null, imageDisplay = null, nameInput = null,
+			commentInput = null, saveButton = null, aside = null;
+
+		fileChoosingElement = document.createElement("input");
+		nameInput = document.createElement("input");
+		imageDisplay = document.createElement("canvas");
+		commentInput = document.createElement("textarea");
+		saveButton = document.createElement("input");
+		aside = document.createElement("aside");
+
+		fileChoosingElement.type = "file";
+		nameInput.id = "name";
+		nameInput.type = "text";
+		imageDisplay.width = "800";
+		imageDisplay.height = "600";
+		commentInput.id = "comment";
+		imageDisplay.id = "imgdisplay";
+		saveButton.id = "save";
+		saveButton.type = "button";
+		saveButton.value = "Save";
+
+		ZEDAPP.drawImage.fileChoosingElement = fileChoosingElement;
+		ZEDAPP.drawImage.nameInput = nameInput;
+		ZEDAPP.drawImage.imageDisplay = imageDisplay;
+		ZEDAPP.drawImage.commentInput = commentInput;
+		ZEDAPP.drawImage.saveButton = saveButton;
+		ZEDAPP.drawImage.aside = aside;
+	},
+
+	insertElements: function () {
+		"use strict";
+		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.fileChoosingElement);
+		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.nameInput);
+		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.imageDisplay);
+		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.commentInput);
+		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.saveButton);
+		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.aside);
+	},
+
+	insertErrorMsg: function () {
+		"use strict";
+		var errorElement = null;
+
+		errorElement = document.createElement("p");
+
+		errorElement.id = "pageError";
+		errorElement.appendChild(document.createTextNode("Sorry, but this web page doesn't work with your web browser!"));
+
+		ZEDAPP.drawImage.wrapper.appendChild(errorElement);
+	},
+
 	/**
 	 * The starter function.
 	 * @author Zlatko Ladan
 	 */
 	init: function () {
 		"use strict";
-		var fileChoosingElement = document.getElementsByTagName("input")[0];
+
+		ZEDAPP.drawImage.wrapper = document.getElementById("wrapper");
+		if (window.openDatabase === undefined) {
+			ZEDAPP.drawImage.insertErrorMsg();
+			return;
+		}
+		ZEDAPP.drawImage.createElements();
 
 		ZEDAPP.drawImage.contextMenu.initMenues(); //TODO EDIT
 
 		ZEDAPP.drawImage.db = window.openDatabase(ZEDAPP.drawImage.DB_DATABASE, ZEDAPP.drawImage.DB_VERSION, ZEDAPP.drawImage.DB_DESCRIPTION, ZEDAPP.drawImage.DB_SIZE);
-		ZEDAPP.drawImage.aside = document.getElementsByTagName("aside")[0];
+
 		ZEDAPP.drawImage.aside.onclick = function (e) {
 			if (e.target !== e.currentTarget) {
 				ZEDAPP.drawImage.unSelectImage();
@@ -409,13 +490,11 @@ ZEDAPP.drawImage = {
 				}
 			}
 		};
-		ZEDAPP.drawImage.imageDisplay = document.getElementById("imgdisplay");
-		ZEDAPP.drawImage.nameInput = document.getElementById("name");
-		ZEDAPP.drawImage.commentInput = document.getElementById("comment");
+
 		ZEDAPP.drawImage.ctx = ZEDAPP.drawImage.imageDisplay.getContext("2d");
 		ZEDAPP.drawImage.clearCanvas();
-		ZEDAPP.drawImage.save = document.getElementById("save");
-		ZEDAPP.drawImage.save.onclick = function () {
+
+		ZEDAPP.drawImage.saveButton.onclick = function () {
 			if (ZEDAPP.drawImage.currentId > 0) {
 				ZEDAPP.drawImage.update(ZEDAPP.drawImage.currentId, ZEDAPP.drawImage.nameInput.value, ZEDAPP.drawImage.commentInput.value, ZEDAPP.drawImage.imageDisplay.toDataURL());
 			} else {
@@ -427,13 +506,21 @@ ZEDAPP.drawImage = {
 			ZEDAPP.drawImage.clearCanvas();
 		};
 		ZEDAPP.drawImage.imageDisplay.onmousedown = function (e) {
+			var previousPos = {};
 			if (e.button === 0) {
-				ZEDAPP.drawImage.drawCircle(e.offsetX, e.offsetY, 20);
 				ZEDAPP.drawImage.imageDisplay.onmousemove = function (e) {
-					ZEDAPP.drawImage.drawCircle(e.offsetX, e.offsetY, 20);
+					if (previousPos.offsetX !== undefined && previousPos.offsetY !== undefined) {
+						ZEDAPP.drawImage.drawLine(previousPos.offsetX, previousPos.offsetY, e.offsetX, e.offsetY, ZEDAPP.drawImage.drawSize);
+					}
+					previousPos.offsetX = e.offsetX;
+					previousPos.offsetY = e.offsetY;
+					ZEDAPP.drawImage.drawCircle(e.offsetX, e.offsetY, ZEDAPP.drawImage.drawSize);
 				};
-				document.onmouseup = function () {
-					ZEDAPP.drawImage.imageDisplay.onmousemove = null;
+				document.onmouseup = function (e) {
+					if (e.button === 0) {
+						previousPos = {};
+						ZEDAPP.drawImage.imageDisplay.onmousemove = null;
+					}
 				};
 			}
 		};
@@ -451,9 +538,10 @@ ZEDAPP.drawImage = {
 			return true;
 		};
 		ZEDAPP.drawImage.commentInput.oncontextmenu = ZEDAPP.drawImage.nameInput.oncontextmenu;
-		fileChoosingElement.onchange = function () {
+		ZEDAPP.drawImage.fileChoosingElement.onchange = function () {
 			ZEDAPP.drawImage.selectImage(this.files);
 		};
+		ZEDAPP.drawImage.insertElements();
 	}
 };
 
