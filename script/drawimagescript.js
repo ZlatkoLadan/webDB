@@ -148,10 +148,20 @@ ZEDAPP.drawImage = {
 				ZEDAPP.drawImage.openImg(ZEDAPP.drawImage.list[id].name, ZEDAPP.drawImage.list[id].comment, ZEDAPP.drawImage.list[id].data);
 				ZEDAPP.drawImage.currentId = id;
 			};
+			
+			tmpContainer.oncontextmenu = function (e) {
+				var menu = ZEDAPP.drawImage.contextMenu.thumbnail;
+				menu.menu.style.display = "";
+				menu.menu.style.left = e.pageX + "px";
+				menu.menu.style.top = e.pageY + "px";
+				menu.id = id;
+				return false;
+			}
 			ZEDAPP.drawImage.list[id].nameElement = nameElement;
 			ZEDAPP.drawImage.list[id].imageElement = imageElement;
 			ZEDAPP.drawImage.list[id].commentElement = commentElement;
 		} else {
+			ZEDAPP.drawImage.list[id].imageElement.title = name;
 			ZEDAPP.drawImage.list[id].nameElement.firstChild.nodeValue = name;
 			ZEDAPP.drawImage.list[id].imageElement.src = data;
 			ZEDAPP.drawImage.list[id].commentElement.firstChild.nodeValue = comment;
@@ -160,6 +170,12 @@ ZEDAPP.drawImage = {
 		ZEDAPP.drawImage.list[id].name = name;
 		ZEDAPP.drawImage.list[id].comment = comment;
 		ZEDAPP.drawImage.list[id].data = data;
+	},
+
+	removeImgFromList: function (id) {
+		"use strict";
+		ZEDAPP.drawImage.aside.removeChild(ZEDAPP.drawImage.list[id].imageElement.parentElement);
+		delete ZEDAPP.drawImage.list[id];
 	},
 
 	/**
@@ -203,6 +219,24 @@ ZEDAPP.drawImage = {
 		if (typeof (name) === "string" && typeof (comment) === "string" && typeof (data) === "string") {
 			ZEDAPP.drawImage.db.transaction(function (tx) {
 				tx.executeSql("INSERT INTO image (name, comment, data) VALUES (?, ?, ?)", [name, comment, data], onSuccess, ZEDAPP.drawImage.errorCallback);
+			});
+		} else {
+			console.log("errr");
+		}
+	},
+
+	/**
+	 * Deletes an image and its data from the table.
+	 * @param {Integer} id
+	 * @author Zlatko Ladan
+	 */
+	remove: function (id) {
+		"use strict";
+		if (typeof (id) === "number") {
+			ZEDAPP.drawImage.db.transaction(function (tx) {
+				tx.executeSql("DELETE FROM image WHERE id = ?", [id], function () {
+					ZEDAPP.drawImage.removeImgFromList(id);
+				}, ZEDAPP.drawImage.errorCallback);
 			});
 		} else {
 			console.log("errr");
@@ -275,31 +309,46 @@ ZEDAPP.drawImage = {
 	},
 
 	contextMenu: {
-		contextMenu: null,
+		thumbnail: {
+			menu: null,
+			id: 0,
+		},
 
 		initMenues: function () {
 			"use strict";
-			var contextMenu = null, ULlist = null, listItem = null, anchor = null, textNode = null;
+			ZEDAPP.drawImage.contextMenu.initThumbnailMenu();
+		},
 
-			contextMenu = document.createElement("div");
+		initThumbnailMenu: function () {
+			"use strict";
+			var thumbnailMenu = null, ULlist = null, listItem = null, anchor = null, textNode = null;
+
+			thumbnailMenu = document.createElement("div");
 			ULlist = document.createElement("ul");
 
-			contextMenu.id = "contextmenu";
+			thumbnailMenu.id = "contextmenu";
+			thumbnailMenu.style.display = "none";
 
 			listItem = document.createElement("li");
 			anchor = document.createElement("a");
-			textNode = document.createTextNode("item");
+			textNode = document.createTextNode("delete");
+
+			anchor.href = "#";
+			anchor.onclick = function () {
+				var id = 0;
+				id = ZEDAPP.drawImage.contextMenu.thumbnail.id;
+				if (confirm("do you want to remove \"" + ZEDAPP.drawImage.list[id].name + "\"?")) {
+					ZEDAPP.drawImage.remove(id);
+				}
+				return false;
+			};
 
 			anchor.appendChild(textNode);
 			listItem.appendChild(anchor);
 			ULlist.appendChild(listItem);
-			contextMenu.appendChild(ULlist);
-			document.body.appendChild(contextMenu);
-			ZEDAPP.drawImage.contextMenu.contextMenu = contextMenu;
-		},
-
-		thumbnailMenu: function () {
-			"use strict";
+			thumbnailMenu.appendChild(ULlist);
+			document.body.appendChild(thumbnailMenu);
+			ZEDAPP.drawImage.contextMenu.thumbnail.menu = thumbnailMenu;
 		}
 	},
 
@@ -355,16 +404,10 @@ ZEDAPP.drawImage = {
 		};
 		document.body.onclick = function () {
 			//TODO: FIX functionality
-			var elem = document.querySelector("#contextmenu");
-			elem.style.display = "none";
+			ZEDAPP.drawImage.contextMenu.thumbnail.menu.style.display = "none";
 		}
 		document.body.oncontextmenu = function (e) {
-			var elem = document.querySelector("#contextmenu");
-			elem.style.display = "";
-			elem.style.left = e.pageX + "px";
-			elem.style.top = e.pageY + "px";
 			return false;
-			//TODO: FIX functionality
 		};
 		ZEDAPP.drawImage.create();
 		ZEDAPP.drawImage.select();

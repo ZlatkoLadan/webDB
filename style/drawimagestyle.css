@@ -22,7 +22,7 @@ h1 {
 	width: 960px;
 	margin: 0 auto;
 	background-color: #aaa;
-	border-radius: 0 0 15pt 15pt;
+	border-radius: 0 0 0 15pt;
 	padding-top: 5pt;
 	padding-bottom: 5pt;
 	position: relative;
@@ -35,7 +35,6 @@ aside {
 	background-color: #ddd;
 	cursor: default;
 	height: 100%;
-	border-bottom-right-radius: 16pt;
 	border-left: 1px solid #000;
 	overflow-x: hidden;
 	overflow-y: scroll;
@@ -66,7 +65,7 @@ aside > div:hover { background-color: #00f;}
 aside > div:active { background-color: #00a;}
 aside > div { border-bottom: 1pt solid #000;}
 div#contextmenu {
-	position: fixed;
+	position: absolute;
 	background-color: #fff;
 	border: 1pt solid #333;
 	border-radius: 7pt;
