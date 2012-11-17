@@ -1,39 +1,30 @@
 var ZEDAPP = {};
 ZEDAPP.Misc = {
-	toggleFullScreen: function (element) {
+	isFullscreenOn: function () {
 		"use strict";
-		var isFullscreen = false;
-		if (document.fullScreen !== undefined) {
-			isFullscreen = document.fullScreen;
+		if (document.fullscreen !== undefined) {
+			return document.fullscreen;
 		} else if (document.webkitIsFullScreen !== undefined) {
-			isFullscreen = document.webkitIsFullScreen;
-		} else if (document.mozFullScreen !== undefined) {
-			isFullscreen = document.mozFullScreen;
+			return document.webkitIsFullScreen;
+		} else if (document.mozFullscreen !== undefined) {
+			return document.mozFullscreen;
 		}
- 
-		if (!isFullscreen) {
-			if (element.requestFullScreen !== undefined) {
-				element.requestFullScreen();
-				return true;
-			} else if (element.webkitRequestFullScreen !== undefined) {
-				element.webkitRequestFullScreen();
-				return true;
-			} else if (element.mozRequestFullScreen !== undefined) {
-				element.mozRequestFullScreen();
-				return true;
-			}
-		} else {
-			if (document.cancelFullScreen !== undefined) {
-				document.cancelFullScreen();
-				return true;
-			} else if (document.webkitCancelFullScreen !== undefined) {
-				document.webkitCancelFullScreen();
-				return true;
-			} else if (document.mozCancelFullScreen !== undefined) {
-				document.mozCancelFullScreen();
-				return true;
-			}
+	},
+
+	turnOnFullScreen: function (element) {
+		"use strict";
+
+		if (element.requestFullScreen !== undefined) {
+			element.requestFullScreen();
+			return true;
+		} else if (element.webkitRequestFullScreen !== undefined) {
+			element.webkitRequestFullScreen();
+			return true;
+		} else if (element.mozRequestFullScreen !== undefined) {
+			element.mozRequestFullScreen();
+			return true;
 		}
+
 		return false;
 	}
 };
@@ -81,10 +72,14 @@ ZEDAPP.drawImage = {
 	CANVAS_DEFAULT_WIDTH: 800,
 	CANVAS_DEFAULT_HEIGHT: 600,
 
+	OPEN_IN_FULLSCREEN: "Open in fullscreen.",
+	CLEAR_CANVAS: "Clear Board.",
+
 	wrapper: null,
 	db: null,
 	aside: null,
 	imageDisplay: null,
+	imageDisplayWrapper: null,
 	ctx: null,
 	nameInput: null,
 	commentInput: null,
@@ -437,7 +432,12 @@ ZEDAPP.drawImage = {
 
 		canvas: {
 			menu: null,
-			id: 0
+			id: 0,
+
+			item: {
+				fullscreen: null,
+				clearCanvas: null
+			}
 		},
 
 		initMenues: function () {
@@ -480,7 +480,8 @@ ZEDAPP.drawImage = {
 
 		initCanvasMenu: function () {
 			"use strict";
-			var canvasMenu = null, ULlist = null, listItem = null, anchor = null, textNode = null;
+			var canvasMenu = null, ULlist = null, listItem = null, fullscreen = null,
+				clearCanvas = null, textNode = null;
 
 			canvasMenu = document.createElement("div");
 			ULlist = document.createElement("ul");
@@ -489,31 +490,47 @@ ZEDAPP.drawImage = {
 			canvasMenu.style.display = "none";
 
 			listItem = document.createElement("li");
-			anchor = document.createElement("a");
-			textNode = document.createTextNode("Open in fullscreen");
 
-			anchor.href = "#";
-			anchor.onclick = function () {
-				ZEDAPP.Misc.toggleFullScreen(ZEDAPP.drawImage.imageDisplay);
+			textNode = document.createTextNode(ZEDAPP.drawImage.OPEN_IN_FULLSCREEN);
+			fullscreen = document.createElement("a");
+			fullscreen.href = "#";
+			fullscreen.onclick = function () {
+				ZEDAPP.Misc.turnOnFullScreen(ZEDAPP.drawImage.imageDisplayWrapper);
 				return false;
 			};
+			fullscreen.appendChild(textNode);
+			clearCanvas = document.createElement("a");
+			textNode = document.createTextNode(ZEDAPP.drawImage.CLEAR_CANVAS);
+			clearCanvas.href = "#";
+			clearCanvas.onclick = function () {
+				ZEDAPP.drawImage.currentId = 0;
+				ZEDAPP.drawImage.nameInput.value = "";
+				ZEDAPP.drawImage.commentInput.value = "";
+				ZEDAPP.drawImage.unSelectImage();
+				ZEDAPP.drawImage.clearCanvas();
+				return false;
+			};
+			clearCanvas.appendChild(textNode);
 
-			anchor.appendChild(textNode);
-			listItem.appendChild(anchor);
+			listItem.appendChild(fullscreen);
+			listItem.appendChild(clearCanvas);
 			ULlist.appendChild(listItem);
 			canvasMenu.appendChild(ULlist);
-			document.body.appendChild(canvasMenu);
+			ZEDAPP.drawImage.imageDisplayWrapper.appendChild(canvasMenu);
 			ZEDAPP.drawImage.contextMenu.canvas.menu = canvasMenu;
+			ZEDAPP.drawImage.contextMenu.canvas.item.fullscreen = fullscreen;
+			ZEDAPP.drawImage.contextMenu.canvas.item.clearCanvas = clearCanvas;
 		}
 	},
 
 	createElements: function () {
 		"use strict";
-		var fileChoosingElement = null, imageDisplay = null, nameInput = null,
-			commentInput = null, saveButton = null, aside = null;
+		var fileChoosingElement = null, imageDisplayWrapper = null, imageDisplay = null,
+			nameInput = null, commentInput = null, saveButton = null, aside = null;
 
 		fileChoosingElement = document.createElement("input");
 		nameInput = document.createElement("input");
+		imageDisplayWrapper = document.createElement("div");
 		imageDisplay = document.createElement("canvas");
 		commentInput = document.createElement("textarea");
 		saveButton = document.createElement("input");
@@ -522,6 +539,7 @@ ZEDAPP.drawImage = {
 		fileChoosingElement.type = "file";
 		nameInput.id = "name";
 		nameInput.type = "text";
+		imageDisplayWrapper.id = "imgdisplaywrapper";
 		imageDisplay.width = ZEDAPP.drawImage.canvasSize.width;
 		imageDisplay.height = ZEDAPP.drawImage.canvasSize.height;
 		commentInput.id = "comment";
@@ -532,6 +550,7 @@ ZEDAPP.drawImage = {
 
 		ZEDAPP.drawImage.fileChoosingElement = fileChoosingElement;
 		ZEDAPP.drawImage.nameInput = nameInput;
+		ZEDAPP.drawImage.imageDisplayWrapper = imageDisplayWrapper;
 		ZEDAPP.drawImage.imageDisplay = imageDisplay;
 		ZEDAPP.drawImage.commentInput = commentInput;
 		ZEDAPP.drawImage.saveButton = saveButton;
@@ -542,7 +561,8 @@ ZEDAPP.drawImage = {
 		"use strict";
 		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.fileChoosingElement);
 		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.nameInput);
-		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.imageDisplay);
+		ZEDAPP.drawImage.imageDisplayWrapper.appendChild(ZEDAPP.drawImage.imageDisplay);
+		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.imageDisplayWrapper);
 		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.commentInput);
 		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.saveButton);
 		ZEDAPP.drawImage.wrapper.appendChild(ZEDAPP.drawImage.aside);
@@ -627,6 +647,11 @@ ZEDAPP.drawImage = {
 		};
 		ZEDAPP.drawImage.imageDisplay.oncontextmenu = function (e) {
 			var menu = null;
+			if (ZEDAPP.Misc.isFullscreenOn()){
+				ZEDAPP.drawImage.contextMenu.canvas.item.fullscreen.style.display = "none";
+			} else {
+				ZEDAPP.drawImage.contextMenu.canvas.item.fullscreen.style.display = "";
+			}
 			menu = ZEDAPP.drawImage.contextMenu.canvas;
 			menu.menu.style.display = "";
 			menu.menu.style.left = e.pageX + "px";

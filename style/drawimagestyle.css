@@ -43,15 +43,17 @@ input, textarea { display: block;}
 #name, textarea { width: 800px;}
 input[type="file"] { background-color: #fff;}
 textarea { height: 200px;}
-input[type="file"], #name, canvas, textarea, input[type="button"] {
+input[type="file"], #name, textarea, input[type="button"] {
 	border: 1px solid #000;
 	margin-bottom: 2pt;
 }
-canvas {
+#imgdisplay {
+	border: 1px solid #000;
 	cursor: crosshair;
 	display: block;
 }
-input, canvas, textarea { margin-left: 29px;}
+#imgdisplaywrapper { margin-bottom: 2pt;}
+input, #imgdisplaywrapper, textarea { margin-left: 29px;}
 html {
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
