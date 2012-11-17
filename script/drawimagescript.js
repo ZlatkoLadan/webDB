@@ -1,4 +1,43 @@
 var ZEDAPP = {};
+ZEDAPP.Misc = {
+	toggleFullScreen: function (element) {
+		"use strict";
+		var isFullscreen = false;
+		if (document.fullScreen !== undefined) {
+			isFullscreen = document.fullScreen;
+		} else if (document.webkitIsFullScreen !== undefined) {
+			isFullscreen = document.webkitIsFullScreen;
+		} else if (document.mozFullScreen !== undefined) {
+			isFullscreen = document.mozFullScreen;
+		}
+ 
+		if (!isFullscreen) {
+			if (element.requestFullScreen !== undefined) {
+				element.requestFullScreen();
+				return true;
+			} else if (element.webkitRequestFullScreen !== undefined) {
+				element.webkitRequestFullScreen();
+				return true;
+			} else if (element.mozRequestFullScreen !== undefined) {
+				element.mozRequestFullScreen();
+				return true;
+			}
+		} else {
+			if (document.cancelFullScreen !== undefined) {
+				document.cancelFullScreen();
+				return true;
+			} else if (document.webkitCancelFullScreen !== undefined) {
+				document.webkitCancelFullScreen();
+				return true;
+			} else if (document.mozCancelFullScreen !== undefined) {
+				document.mozCancelFullScreen();
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
 ZEDAPP.StringUtil = {
 	numberOfMatches: function (searchString, textString, ignoreCase) {
 		"use strict";
@@ -39,6 +78,9 @@ ZEDAPP.drawImage = {
 	DB_DESCRIPTION: "for files",
 	DB_SIZE: 104857600,
 
+	CANVAS_DEFAULT_WIDTH: 800,
+	CANVAS_DEFAULT_HEIGHT: 600,
+
 	wrapper: null,
 	db: null,
 	aside: null,
@@ -52,6 +94,27 @@ ZEDAPP.drawImage = {
 	currentId: 0,
 	drawSize: 20,
 	color: "#000",
+	canvasSize: {
+		width: 0,
+		height: 0,
+		initSize: function () {
+			"use strict";
+			var width = 0, height = 0, screenWidth = 0, screenHeight = 0;
+
+			width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 0;
+			height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0;
+			screenWidth = screen.width;
+
+			if (width < ZEDAPP.drawImage.CANVAS_DEFAULT_WIDTH || screenWidth < ZEDAPP.drawImage.CANVAS_DEFAULT_WIDTH) {
+				screenHeight = screen.height;
+				ZEDAPP.drawImage.canvasSize.width = width < screenWidth ? width : screenWidth;
+				ZEDAPP.drawImage.canvasSize.height = height < screenHeight ? height : screenHeight;
+			} else {
+				ZEDAPP.drawImage.canvasSize.width = ZEDAPP.drawImage.CANVAS_DEFAULT_WIDTH;
+				ZEDAPP.drawImage.canvasSize.height = ZEDAPP.drawImage.CANVAS_DEFAULT_HEIGHT;
+			}
+		}
+	},
 
 	/**
 	 * Clears the canvas
@@ -60,7 +123,7 @@ ZEDAPP.drawImage = {
 	clearCanvas: function () {
 		"use strict";
 		ZEDAPP.drawImage.ctx.fillStyle = "#fff";
-		ZEDAPP.drawImage.ctx.fillRect(0, 0, 800, 600);
+		ZEDAPP.drawImage.ctx.fillRect(0, 0, ZEDAPP.drawImage.canvasSize.width, ZEDAPP.drawImage.canvasSize.height);
 	},
 
 	/**
@@ -197,6 +260,7 @@ ZEDAPP.drawImage = {
 				menu.id = id;
 				return false;
 			};
+
 			ZEDAPP.drawImage.list[id].nameElement = nameElement;
 			ZEDAPP.drawImage.list[id].imageElement = imageElement;
 			ZEDAPP.drawImage.list[id].commentElement = commentElement;
@@ -371,9 +435,15 @@ ZEDAPP.drawImage = {
 			id: 0
 		},
 
+		canvas: {
+			menu: null,
+			id: 0
+		},
+
 		initMenues: function () {
 			"use strict";
 			ZEDAPP.drawImage.contextMenu.initThumbnailMenu();
+			ZEDAPP.drawImage.contextMenu.initCanvasMenu();
 		},
 
 		initThumbnailMenu: function () {
@@ -383,7 +453,7 @@ ZEDAPP.drawImage = {
 			thumbnailMenu = document.createElement("div");
 			ULlist = document.createElement("ul");
 
-			thumbnailMenu.id = "contextmenu";
+			thumbnailMenu.className = "contextmenu";
 			thumbnailMenu.style.display = "none";
 
 			listItem = document.createElement("li");
@@ -406,6 +476,34 @@ ZEDAPP.drawImage = {
 			thumbnailMenu.appendChild(ULlist);
 			document.body.appendChild(thumbnailMenu);
 			ZEDAPP.drawImage.contextMenu.thumbnail.menu = thumbnailMenu;
+		},
+
+		initCanvasMenu: function () {
+			"use strict";
+			var canvasMenu = null, ULlist = null, listItem = null, anchor = null, textNode = null;
+
+			canvasMenu = document.createElement("div");
+			ULlist = document.createElement("ul");
+
+			canvasMenu.className = "contextmenu";
+			canvasMenu.style.display = "none";
+
+			listItem = document.createElement("li");
+			anchor = document.createElement("a");
+			textNode = document.createTextNode("Open in fullscreen");
+
+			anchor.href = "#";
+			anchor.onclick = function () {
+				ZEDAPP.Misc.toggleFullScreen(ZEDAPP.drawImage.imageDisplay);
+				return false;
+			};
+
+			anchor.appendChild(textNode);
+			listItem.appendChild(anchor);
+			ULlist.appendChild(listItem);
+			canvasMenu.appendChild(ULlist);
+			document.body.appendChild(canvasMenu);
+			ZEDAPP.drawImage.contextMenu.canvas.menu = canvasMenu;
 		}
 	},
 
@@ -424,8 +522,8 @@ ZEDAPP.drawImage = {
 		fileChoosingElement.type = "file";
 		nameInput.id = "name";
 		nameInput.type = "text";
-		imageDisplay.width = "800";
-		imageDisplay.height = "600";
+		imageDisplay.width = ZEDAPP.drawImage.canvasSize.width;
+		imageDisplay.height = ZEDAPP.drawImage.canvasSize.height;
 		commentInput.id = "comment";
 		imageDisplay.id = "imgdisplay";
 		saveButton.id = "save";
@@ -474,6 +572,7 @@ ZEDAPP.drawImage = {
 			ZEDAPP.drawImage.insertErrorMsg();
 			return;
 		}
+		ZEDAPP.drawImage.canvasSize.initSize();
 		ZEDAPP.drawImage.createElements();
 
 		ZEDAPP.drawImage.contextMenu.initMenues(); //TODO EDIT
@@ -508,10 +607,12 @@ ZEDAPP.drawImage = {
 		ZEDAPP.drawImage.imageDisplay.onmousedown = function (e) {
 			var previousPos = {};
 			if (e.button === 0) {
+				ZEDAPP.drawImage.drawCircle(e.offsetX, e.offsetY, ZEDAPP.drawImage.drawSize);
+				previousPos.offsetX = e.offsetX;
+				previousPos.offsetY = e.offsetY;
+
 				ZEDAPP.drawImage.imageDisplay.onmousemove = function (e) {
-					if (previousPos.offsetX !== undefined && previousPos.offsetY !== undefined) {
-						ZEDAPP.drawImage.drawLine(previousPos.offsetX, previousPos.offsetY, e.offsetX, e.offsetY, ZEDAPP.drawImage.drawSize);
-					}
+					ZEDAPP.drawImage.drawLine(previousPos.offsetX, previousPos.offsetY, e.offsetX, e.offsetY, ZEDAPP.drawImage.drawSize);
 					previousPos.offsetX = e.offsetX;
 					previousPos.offsetY = e.offsetY;
 					ZEDAPP.drawImage.drawCircle(e.offsetX, e.offsetY, ZEDAPP.drawImage.drawSize);
@@ -524,8 +625,17 @@ ZEDAPP.drawImage = {
 				};
 			}
 		};
+		ZEDAPP.drawImage.imageDisplay.oncontextmenu = function (e) {
+			var menu = null;
+			menu = ZEDAPP.drawImage.contextMenu.canvas;
+			menu.menu.style.display = "";
+			menu.menu.style.left = e.pageX + "px";
+			menu.menu.style.top = e.pageY + "px";
+			return false;
+		};
 		document.body.onclick = function () {
 			//TODO: FIX functionality
+			ZEDAPP.drawImage.contextMenu.canvas.menu.style.display = "none";
 			ZEDAPP.drawImage.contextMenu.thumbnail.menu.style.display = "none";
 		};
 		document.body.oncontextmenu = function (e) {

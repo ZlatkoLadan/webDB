@@ -1,7 +1,7 @@
 @import url("reset.css");
 /* CODE BEGINS HERE*/
 body {
-	font-family: Arial;
+	font: 11pt Arial;
 	text-align: center;
 	background: #fff url("bg.png") repeat left top;
 	cursor: default;
@@ -64,26 +64,26 @@ html {
 aside > div:hover { background-color: #00f;}
 aside > div:active { background-color: #00a;}
 aside > div { border-bottom: 1pt solid #000;}
-div#contextmenu {
+div.contextmenu {
 	position: absolute;
 	background-color: #fff;
 	border: 1pt solid #333;
 	border-radius: 7pt;
 }
-div#contextmenu li a {
+div.contextmenu li a {
 	text-decoration: none;
 	color: #222;
 	display: block;
 	padding: 2pt 5pt;
 }
-div#contextmenu li { border-bottom: 1pt solid #000;}
-div#contextmenu li:last-child { border: none;}
-div#contextmenu li:first-child a {
+div.contextmenu li { border-bottom: 1pt solid #000;}
+div.contextmenu li:last-child { border: none;}
+div.contextmenu li:first-child a {
 	border-top-left-radius: 6pt;
 	border-top-right-radius: 6pt;
 }
-div#contextmenu li:last-child a {
+div.contextmenu li:last-child a {
 	border-bottom-left-radius: 6pt;
 	border-bottom-right-radius: 6pt;
 }
-div#contextmenu li a:hover { background-color: #ccc;}
+div.contextmenu li a:hover { background-color: #ccc;}
