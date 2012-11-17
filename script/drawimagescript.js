@@ -1,14 +1,10 @@
 var ZEDAPP = {};
+
 ZEDAPP.Misc = {
 	isFullscreenOn: function () {
 		"use strict";
-		if (document.fullscreen !== undefined) {
-			return document.fullscreen;
-		} else if (document.webkitIsFullScreen !== undefined) {
-			return document.webkitIsFullScreen;
-		} else if (document.mozFullscreen !== undefined) {
-			return document.mozFullscreen;
-		}
+
+		return document.fullscreen || document.webkitIsFullScreen || document.mozFullscreen || false;
 	},
 
 	turnOnFullScreen: function (element) {
@@ -16,16 +12,12 @@ ZEDAPP.Misc = {
 
 		if (element.requestFullScreen !== undefined) {
 			element.requestFullScreen();
-			return true;
 		} else if (element.webkitRequestFullScreen !== undefined) {
 			element.webkitRequestFullScreen();
-			return true;
 		} else if (element.mozRequestFullScreen !== undefined) {
 			element.mozRequestFullScreen();
-			return true;
 		}
 
-		return false;
 	}
 };
 
@@ -426,13 +418,11 @@ ZEDAPP.drawImage = {
 
 	contextMenu: {
 		thumbnail: {
-			menu: null,
-			id: 0
+			menu: null
 		},
 
 		canvas: {
 			menu: null,
-			id: 0,
 
 			item: {
 				fullscreen: null,
@@ -646,15 +636,18 @@ ZEDAPP.drawImage = {
 			}
 		};
 		ZEDAPP.drawImage.imageDisplay.oncontextmenu = function (e) {
-			var menu = null;
-			if (ZEDAPP.Misc.isFullscreenOn()){
+			var menu = null, offsetLeft = 0;
+			if (ZEDAPP.Misc.isFullscreenOn()) {
 				ZEDAPP.drawImage.contextMenu.canvas.item.fullscreen.style.display = "none";
 			} else {
 				ZEDAPP.drawImage.contextMenu.canvas.item.fullscreen.style.display = "";
 			}
 			menu = ZEDAPP.drawImage.contextMenu.canvas;
 			menu.menu.style.display = "";
-			menu.menu.style.left = e.pageX + "px";
+			if (!ZEDAPP.Misc.isFullscreenOn()) {
+				offsetLeft = ZEDAPP.drawImage.wrapper.offsetLeft;
+			}
+			menu.menu.style.left = e.pageX - offsetLeft + "px";
 			menu.menu.style.top = e.pageY + "px";
 			return false;
 		};
