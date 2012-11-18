@@ -94,8 +94,8 @@ ZEDAPP.drawImage = {
 
 			if (width < ZEDAPP.drawImage.CANVAS_DEFAULT_WIDTH || screenWidth < ZEDAPP.drawImage.CANVAS_DEFAULT_WIDTH) {
 				screenHeight = screen.height;
-				ZEDAPP.drawImage.canvasSize.width = width < screenWidth ? width : screenWidth;
-				ZEDAPP.drawImage.canvasSize.height = height < screenHeight ? height : screenHeight;
+				ZEDAPP.drawImage.canvasSize.width = width < screenWidth ? width - 16: screenWidth - 16;
+				ZEDAPP.drawImage.canvasSize.height = height < screenHeight ? height: screenHeight;
 			} else {
 				ZEDAPP.drawImage.canvasSize.width = ZEDAPP.drawImage.CANVAS_DEFAULT_WIDTH;
 				ZEDAPP.drawImage.canvasSize.height = ZEDAPP.drawImage.CANVAS_DEFAULT_HEIGHT;

@@ -89,3 +89,41 @@ div.contextmenu li:last-child a {
 	border-bottom-right-radius: 6pt;
 }
 div.contextmenu li a:hover { background-color: #ccc;}
+/* SCROLLBAR */
+::-webkit-scrollbar {
+	width: 16px;
+	height: 16px
+}
+::-webkit-scrollbar-track {
+	background-color: #f0f0f0;
+}
+::-webkit-scrollbar-thumb {
+	background: #cdcdcd;
+}
+::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-button:vertical:hover {
+	background-color: #a6a6a6;
+}
+::-webkit-scrollbar-thumb:active {
+	background-color: #606060;
+}
+::-webkit-scrollbar-button {
+	width: 16px;
+	height: 16px;
+	background: url("Scroll.png") 0 0 no-repeat;
+	background-size: 64px 48px;
+}
+::-webkit-scrollbar-button:hover {
+	background-position-y: -16px;
+}
+::-webkit-scrollbar-button:active {
+	background-position-y: -32px;
+}
+::-webkit-scrollbar-button:vertical:increment {
+	background-position-x: -16px;
+}
+::-webkit-scrollbar-button:horizontal:decrement {
+	background-position-x: -32px;
+}
+::-webkit-scrollbar-button:horizontal:increment {
+	background-position-x: -48px;
+}
